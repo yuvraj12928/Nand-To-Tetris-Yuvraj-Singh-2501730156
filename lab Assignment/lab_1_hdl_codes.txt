@@ -1,0 +1,137 @@
+==================================================
+                  LAB 1 - PART 1
+==================================================
+
+--- Q1: Implement NOT, AND, OR gates ---
+
+// NOT Gate
+CHIP Not {
+    IN in;
+    OUT out;
+    PARTS:
+    Nand(a=in, b=in, out=out);
+}
+
+// AND Gate
+CHIP And {
+    IN a, b;
+    OUT out;
+    PARTS:
+    Nand(a=a, b=b, out=nandOut);
+    Nand(a=nandOut, b=nandOut, out=out);
+}
+
+// OR Gate
+CHIP Or {
+    IN a, b;
+    OUT out;
+    PARTS:
+    Nand(a=a, b=a, out=notA);
+    Nand(a=b, b=b, out=notB);
+    Nand(a=notA, b=notB, out=out);
+}
+
+
+--- Q2: XOR, Mux, Mux4Way16, DMux ---
+
+// 1. XOR Gate
+CHIP Xor {
+    IN a, b;
+    OUT out;
+    PARTS:
+    Not(in=a, out=notA);
+    Not(in=b, out=notB);
+    And(a=notA, b=b, out=and1);
+    And(a=a, b=notB, out=and2);
+    Or(a=and1, b=and2, out=out);
+}
+
+// 2. Mux
+CHIP Mux {
+    IN a, b, sel;
+    OUT out;
+    PARTS:
+    Not(in=sel, out=notSel);
+    And(a=a, b=notSel, out=and1);
+    And(a=b, b=sel, out=and2);
+    Or(a=and1, b=and2, out=out);
+}
+
+// 3. Mux4Way16
+CHIP Mux4Way16 {
+    IN a[16], b[16], c[16], d[16], sel[2];
+    OUT out[16];
+    PARTS:
+    Mux16(a=a, b=b, sel=sel[0], out=ab);
+    Mux16(a=c, b=d, sel=sel[0], out=cd);
+    Mux16(a=ab, b=cd, sel=sel[1], out=out);
+}
+
+// 4. DMux
+CHIP DMux {
+    IN in, sel;
+    OUT a, b;
+    PARTS:
+    Not(in=sel, out=notSel);
+    And(a=in, b=notSel, out=a);
+    And(a=in, b=sel, out=b);
+}
+
+
+--- Q3: Half Adder & Full Adder ---
+
+// 1. Half Adder
+CHIP HalfAdder {
+    IN a, b;
+    OUT sum, carry;
+    PARTS:
+    Xor(a=a, b=b, out=sum);
+    And(a=a, b=b, out=carry);
+}
+
+// 2. Full Adder
+CHIP FullAdder {
+    IN a, b, c;
+    OUT sum, carry;
+    PARTS:
+    HalfAdder(a=a, b=b, sum=sum1, carry=carry1);
+    HalfAdder(a=sum1, b=c, sum=sum, carry=carry2);
+    Or(a=carry1, b=carry2, out=carry);
+}
+
+
+==================================================
+                  LAB 1 - PART 2
+==================================================
+
+--- Q3: Half Adder and Full Adder Implementation in HDL ---
+
+// 1. Half Adder (HalfAdder.hdl)
+CHIP HalfAdder {
+    IN a, b;
+    OUT sum, carry;
+    PARTS:
+    Xor(a=a, b=b, out=sum);
+    And(a=a, b=b, out=carry);
+}
+
+// 2. Full Adder (FullAdder.hdl)
+CHIP FullAdder {
+    IN a, b, c;
+    OUT sum, carry;
+    PARTS:
+    HalfAdder(a=a, b=b, sum=s1, carry=c1);
+    HalfAdder(a=s1, b=c, sum=sum, carry=c2);
+    Or(a=c1, b=c2, out=carry);
+}
+
+
+--- Q4: 16-bit Ripple-Carry Adder in HDL ---
+
+// 1. Add16 (Add16.hdl)
+CHIP Add16 {
+    IN a[16], b[16];
+    OUT out[16];
+    PARTS:
+    Add16Internal(a=a, b=b, out=out);
+}
